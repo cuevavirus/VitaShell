@@ -17,7 +17,7 @@
 */
 
 #include <psp2kern/kernel/modulemgr.h>
-#include <psp2kern/io/fcntl.h>
+#include <psp2kern/kernel/iofilemgr.h>
 #include <psp2kern/udcd.h>
 
 #include <stdio.h>
@@ -62,7 +62,6 @@ static int ksceIoReadPatched(SceUID fd, void *data, SceSize size) {
   return res;
 }
 
-void _start() __attribute__ ((weak, alias("module_start")));
 int module_start(SceSize args, void *argp) {
   // Get tai module info
   tai_module_info_t info;

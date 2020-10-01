@@ -198,7 +198,7 @@ int refreshApp(const char *app_path) {
   return (res < 0) ? res : 1;
 }
 
-// target_type should be either SCE_S_IFREG for files or SCE_S_IFDIR for directories
+// target_type should be either SCE_STM_FREG for files or SCE_STM_FDIR for directories
 int parse_dir_with_callback(int target_type, const char* path, void(*callback)(void*, const char*, const char*), void* data) {
   SceUID dfd = sceIoDopen(path);
   if (dfd >= 0) {
@@ -210,7 +210,7 @@ int parse_dir_with_callback(int target_type, const char* path, void(*callback)(v
 
       res = sceIoDread(dfd, &dir);
       if (res > 0) {
-        if ((dir.d_stat.st_mode & SCE_S_IFMT) == target_type) {
+        if ((dir.d_stat.st_mode & SCE_STM_FMT) == target_type) {
           callback(data, path, dir.d_name);
           if (cancelHandler()) {
             closeWaitDialog();
@@ -299,7 +299,7 @@ void dlc_callback_outer(void* data, const char* dir, const char* subdir) {
 
   // Get the title's dlc subdirectories
   int len = snprintf(path, sizeof(path), "%s/%s", dir, subdir);
-  parse_dir_with_callback(SCE_S_IFDIR, path, dlc_callback_inner, &dlc_data);
+  parse_dir_with_callback(SCE_STM_FDIR, path, dlc_callback_inner, &dlc_data);
 
   if (refresh_data->refresh_pass) {
     // For dlc, the process happens in two phases to avoid promotion errors:
@@ -362,8 +362,8 @@ void psm_callback(void* data, const char* dir, const char* subdir) {
     return;
 
   if (refresh_data->refresh_pass) {
-    snprintf(path, MAX_PATH_LENGTH, "%s/%s", dir, subdir);  
-    if (refreshNeeded(path, "psm")) {        
+    snprintf(path, MAX_PATH_LENGTH, "%s/%s", dir, subdir);
+    if (refreshNeeded(path, "psm")) {
     char contentid_path[MAX_PATH_LENGTH];
     snprintf(contentid_path, MAX_PATH_LENGTH, "%s/RW/System/content_id", path);
     
@@ -415,19 +415,19 @@ int refresh_thread(SceSize args, void *argp)  {
   sceKernelDelayThread(DIALOG_WAIT); // Needed to see the percentage
 
   // Get the app count
-  if (parse_dir_with_callback(SCE_S_IFDIR, "ux0:app", app_callback, &refresh_data) < 0)
+  if (parse_dir_with_callback(SCE_STM_FDIR, "ux0:app", app_callback, &refresh_data) < 0)
     goto EXIT;
 
   // Get the dlc count
-  if (parse_dir_with_callback(SCE_S_IFDIR, "ux0:addcont", dlc_callback_outer, &refresh_data) < 0)
+  if (parse_dir_with_callback(SCE_STM_FDIR, "ux0:addcont", dlc_callback_outer, &refresh_data) < 0)
     goto EXIT;
 
   // Get the patch count
-  if (parse_dir_with_callback(SCE_S_IFDIR, "ux0:patch", patch_callback, &refresh_data) < 0)
+  if (parse_dir_with_callback(SCE_STM_FDIR, "ux0:patch", patch_callback, &refresh_data) < 0)
     goto EXIT;
 
   // Get the psm count
-  if (parse_dir_with_callback(SCE_S_IFDIR, "ux0:psm", psm_callback, &refresh_data) < 0)
+  if (parse_dir_with_callback(SCE_STM_FDIR, "ux0:psm", psm_callback, &refresh_data) < 0)
     goto EXIT;
 
   // Update thread
@@ -441,19 +441,19 @@ int refresh_thread(SceSize args, void *argp)  {
   refresh_data.refresh_pass = 1;
 
   // Refresh apps
-  if (parse_dir_with_callback(SCE_S_IFDIR, "ux0:app", app_callback, &refresh_data) < 0)
+  if (parse_dir_with_callback(SCE_STM_FDIR, "ux0:app", app_callback, &refresh_data) < 0)
     goto EXIT;
 
   // Refresh dlc
-  if (parse_dir_with_callback(SCE_S_IFDIR, "ux0:addcont", dlc_callback_outer, &refresh_data) < 0)
+  if (parse_dir_with_callback(SCE_STM_FDIR, "ux0:addcont", dlc_callback_outer, &refresh_data) < 0)
     goto EXIT;
-  
+
   // Refresh patch
-  if (parse_dir_with_callback(SCE_S_IFDIR, "ux0:patch", patch_callback, &refresh_data) < 0)
+  if (parse_dir_with_callback(SCE_STM_FDIR, "ux0:patch", patch_callback, &refresh_data) < 0)
     goto EXIT;
 
   // Refresh psm
-  if (parse_dir_with_callback(SCE_S_IFDIR, "ux0:psm", psm_callback, &refresh_data) < 0)
+  if (parse_dir_with_callback(SCE_STM_FDIR, "ux0:psm", psm_callback, &refresh_data) < 0)
     goto EXIT;
 
   sceIoRmdir(DLC_TEMP);
@@ -512,9 +512,9 @@ void license_dir_callback(void* data, const char* dir, const char* subdir) {
 
   snprintf(path, sizeof(path), "%s/%s", dir, subdir);
   if (++license_data->cur_depth == license_data->max_depth)
-    parse_dir_with_callback(SCE_S_IFREG, path, license_file_callback, data);
+    parse_dir_with_callback(SCE_STM_FREG, path, license_file_callback, data);
   else
-    parse_dir_with_callback(SCE_S_IFDIR, path, license_dir_callback, data);
+    parse_dir_with_callback(SCE_STM_FDIR, path, license_dir_callback, data);
   license_data->cur_depth--;
 }
 
@@ -533,10 +533,10 @@ int license_thread(SceSize args, void *argp) {
   sceKernelDelayThread(DIALOG_WAIT); // Needed to see the percentage
 
   // NB: ux0:license access requires elevated permisions
-  if (parse_dir_with_callback(SCE_S_IFDIR, "ux0:license/app", license_dir_callback, &license_data) < 0)
+  if (parse_dir_with_callback(SCE_STM_FDIR, "ux0:license/app", license_dir_callback, &license_data) < 0)
     goto EXIT;
   license_data.max_depth++;
-  if (parse_dir_with_callback(SCE_S_IFDIR, "ux0:license/addcont", license_dir_callback, &license_data) < 0)
+  if (parse_dir_with_callback(SCE_STM_FDIR, "ux0:license/addcont", license_dir_callback, &license_data) < 0)
     goto EXIT;
 
   // Update thread
@@ -553,10 +553,10 @@ int license_thread(SceSize args, void *argp) {
   // Insert the licenses
   license_data.copy_pass = 1;
   license_data.max_depth = 1;
-  if (parse_dir_with_callback(SCE_S_IFDIR, "ux0:license/app", license_dir_callback, &license_data) < 0)
+  if (parse_dir_with_callback(SCE_STM_FDIR, "ux0:license/app", license_dir_callback, &license_data) < 0)
     goto EXIT;
   license_data.max_depth++;
-  if (parse_dir_with_callback(SCE_S_IFDIR, "ux0:license/addcont", license_dir_callback, &license_data) < 0)
+  if (parse_dir_with_callback(SCE_STM_FDIR, "ux0:license/addcont", license_dir_callback, &license_data) < 0)
     goto EXIT;
 
   // Set progress to 100%

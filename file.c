@@ -201,7 +201,7 @@ int getPathInfo(const char *path, uint64_t *size, uint32_t *folders,
           continue;
         }
 
-        if (SCE_S_ISDIR(dir.d_stat.st_mode)) {
+        if (SCE_STM_ISDIR(dir.d_stat.st_mode)) {
           int ret = getPathInfo(new_path, size, folders, files, handler);
           if (ret <= 0) {
             free(new_path);
@@ -260,7 +260,7 @@ int removePath(const char *path, FileProcessParam *param) {
         char *new_path = malloc(strlen(path) + strlen(dir.d_name) + 2);
         snprintf(new_path, MAX_PATH_LENGTH, "%s%s%s", path, hasEndSlash(path) ? "" : "/", dir.d_name);
 
-        if (SCE_S_ISDIR(dir.d_stat.st_mode)) {
+        if (SCE_STM_ISDIR(dir.d_stat.st_mode)) {
           int ret = removePath(new_path, param);
           if (ret <= 0) {
             free(new_path);
@@ -438,7 +438,7 @@ int copyPath(const char *src_path, const char *dst_path, FileProcessParam *param
     memset(&stat, 0, sizeof(SceIoStat));
     sceIoGetstatByFd(dfd, &stat);
 
-    stat.st_mode |= SCE_S_IWUSR;
+    stat.st_mode |= SCE_STM_RWU | SCE_STM_RWO;
 
     int ret = sceIoMkdir(dst_path, stat.st_mode & 0xFFF);
     if (ret < 0 && ret != SCE_ERROR_ERRNO_EEXIST) {
@@ -479,7 +479,7 @@ int copyPath(const char *src_path, const char *dst_path, FileProcessParam *param
 
         int ret = 0;
 
-        if (SCE_S_ISDIR(dir.d_stat.st_mode)) {
+        if (SCE_STM_ISDIR(dir.d_stat.st_mode)) {
           ret = copyPath(new_src_path, new_dst_path, param);
         } else {
           ret = copyFile(new_src_path, new_dst_path, param);
@@ -533,8 +533,8 @@ int movePath(const char *src_path, const char *dst_path, int flags, FileProcessP
       return res;
 
     // Is dir
-    int src_is_dir = SCE_S_ISDIR(src_stat.st_mode);
-    int dst_is_dir = SCE_S_ISDIR(dst_stat.st_mode);
+    int src_is_dir = SCE_STM_ISDIR(src_stat.st_mode);
+    int dst_is_dir = SCE_STM_ISDIR(dst_stat.st_mode);
 
     // One of them is a file and the other a directory, no replacement or integration possible
     if (src_is_dir != dst_is_dir)
@@ -1029,7 +1029,7 @@ int fileListGetDirectoryEntries(FileList *list, const char *path, int sort) {
     if (res > 0) {
       FileListEntry *entry = malloc(sizeof(FileListEntry));
       if (entry) {
-        entry->is_folder = SCE_S_ISDIR(dir.d_stat.st_mode);
+        entry->is_folder = SCE_STM_ISDIR(dir.d_stat.st_mode);
         entry->is_symlink = 0;
         entry->symlink = NULL;
 
@@ -1135,7 +1135,7 @@ int resolveSimLink(Symlink *symlink, const char *path) {
     free(resolve);
     return VITASHELL_ERROR_SYMLINK_INTERNAL;
   }
-  symlink->to_file = !SCE_S_ISDIR(io_stat.st_mode);
+  symlink->to_file = !SCE_STM_ISDIR(io_stat.st_mode);
   symlink->target_path = resolve;
   symlink->target_path_length = bytes_read + 1;
   return 0;

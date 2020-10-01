@@ -20,7 +20,7 @@
 #include <psp2kern/kernel/modulemgr.h>
 #include <psp2kern/kernel/sysmem.h>
 #include <psp2kern/kernel/threadmgr.h>
-#include <psp2kern/io/fcntl.h>
+#include <psp2kern/kernel/iofilemgr.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -258,7 +258,6 @@ int shellKernelGetRifVitaKey(const void *license_buf, void *klicensee) {
   return res;
 }
 
-void _start() __attribute__ ((weak, alias("module_start")));
 int module_start(SceSize args, void *argp) {
   SceUID tmp1, tmp2;
   // Get tai module info

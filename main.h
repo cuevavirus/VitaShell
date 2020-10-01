@@ -19,7 +19,33 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
-#include <vitasdk.h>
+#include <psp2/appmgr.h>
+#include <psp2/apputil.h>
+#include <psp2/ctrl.h>
+#include <psp2/display.h>
+#include <psp2/ime_dialog.h>
+#include <psp2/kernel/iofilemgr.h>
+#include <psp2/kernel/processmgr.h>
+#include <psp2/libime.h>
+#include <psp2/libssl.h>
+#include <psp2/message_dialog.h>
+#include <psp2/mtpif.h>
+#include <psp2/musicexport.h>
+#include <psp2/net/http.h>
+#include <psp2/netcheck_dialog.h>
+#include <psp2/npdrm.h>
+#include <psp2/photoexport.h>
+#include <psp2/power.h>
+#include <psp2/promoterutil.h>
+#include <psp2/pspnet_adhoc.h>
+#include <psp2/registrymgr.h>
+#include <psp2/rtc.h>
+#include <psp2/shellsvc.h>
+#include <psp2/sysmodule.h>
+#include <psp2/udcd.h>
+#include <psp2/usbstorvstor.h>
+#include <psp2/videoexport.h>
+#include <psp2/vshbridge.h>
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,6 +1,6 @@
 #include <psp2/audioout.h>
 #include <psp2/kernel/threadmgr.h>
-#include <psp2/io/fcntl.h>
+#include <psp2/kernel/iofilemgr.h>
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>

@@ -320,7 +320,7 @@ ArchiveFileNode *_findArchiveNode(ArchiveFileNode *parent, char *name, ArchiveFi
         return curr;
       
       // Is folder
-      if (SCE_S_ISDIR(curr->stat.st_mode)) {
+      if (SCE_STM_ISDIR(curr->stat.st_mode)) {
         // Serialize path name
         name = serializePathName(name, &p);
         
@@ -373,7 +373,7 @@ int addArchiveNodeRecursive(ArchiveFileNode *parent, char *name, SceIoStat *stat
   // Create new node
   SceIoStat node_stat;
   memcpy(&node_stat, stat, sizeof(SceIoStat));
-  node_stat.st_mode = SCE_S_IFDIR;
+  node_stat.st_mode = SCE_STM_FDIR;
   node_stat.st_size = 0;
   
   ArchiveFileNode *node = createArchiveNode(name, p ? &node_stat : stat);  
@@ -400,7 +400,7 @@ void freeArchiveNodes(ArchiveFileNode *curr) {
   // Traverse
   while (curr) {
     // Enter directory
-    if (SCE_S_ISDIR(curr->stat.st_mode)) {
+    if (SCE_STM_ISDIR(curr->stat.st_mode)) {
       // Traverse child entry of this directory
       freeArchiveNodes(curr->child);
     }
@@ -531,7 +531,7 @@ int fileListGetArchiveEntries(FileList *list, const char *path, int sort) {
     FileListEntry *entry = malloc(sizeof(FileListEntry));
     if (entry) {
       entry->is_symlink = 0;
-      entry->is_folder = SCE_S_ISDIR(curr->stat.st_mode);
+      entry->is_folder = SCE_STM_ISDIR(curr->stat.st_mode);
       if (entry->is_folder) {
         entry->name_length = strlen(curr->name) + 1;
         entry->name = malloc(entry->name_length + 1);
@@ -574,8 +574,8 @@ int getArchivePathInfo(const char *path, uint64_t *size, uint32_t *folders,
   int res = archiveFileGetstat(path, &stat);
   if (res < 0)
     return res;
-  
-  if (SCE_S_ISDIR(stat.st_mode)) {
+
+  if (SCE_STM_ISDIR(stat.st_mode)) {
     FileList list;
     memset(&list, 0, sizeof(FileList));
     fileListGetArchiveEntries(&list, path, SORT_NONE);
@@ -709,8 +709,8 @@ int extractArchivePath(const char *src_path, const char *dst_path, FileProcessPa
   int res = archiveFileGetstat(src_path, &stat);
   if (res < 0)
     return res;
-  
-  if (SCE_S_ISDIR(stat.st_mode)) {
+
+  if (SCE_STM_ISDIR(stat.st_mode)) {
     FileList list;
     memset(&list, 0, sizeof(FileList));
     fileListGetArchiveEntries(&list, src_path, SORT_NONE);
@@ -878,9 +878,9 @@ int archiveClose() {
 SceMode convert_stat_mode(mode_t mode) {
   SceMode sce_mode = 0;
   if (mode & S_IFDIR)
-    sce_mode |= SCE_S_IFDIR;
+    sce_mode |= SCE_STM_FDIR;
   if (mode & S_IFREG)
-    sce_mode |= SCE_S_IFREG;
+    sce_mode |= SCE_STM_FREG;
   return sce_mode;
 }
 
@@ -915,7 +915,7 @@ int archiveOpen(const char *file) {
   // Create archive root
   SceIoStat root_stat;
   memset(&root_stat, 0, sizeof(SceIoStat));
-  root_stat.st_mode = SCE_S_IFDIR;
+  root_stat.st_mode = SCE_STM_FDIR;
   archive_root = createArchiveNode("/", &root_stat);
   
   // Traverse

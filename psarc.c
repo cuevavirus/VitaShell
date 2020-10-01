@@ -497,7 +497,7 @@ int psarcFileGetstat(const char *file, SceIoStat *stat) {
     return res;
   
   if (stat) {
-    stat->st_mode = (fios_stat.statFlags & 0x1) ? SCE_S_IFDIR : SCE_S_IFREG;
+    stat->st_mode = (fios_stat.statFlags & 0x1) ? SCE_STM_FDIR : SCE_STM_FREG;
     stat->st_size = fios_stat.fileSize;
     
     SceDateTime time;

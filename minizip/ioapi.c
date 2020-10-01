@@ -11,7 +11,7 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#include <psp2/io/fcntl.h>
+#include <psp2/kernel/iofilemgr.h>
 
 #include <stdlib.h>
 #include <string.h>

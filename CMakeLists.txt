@@ -1,26 +1,28 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.13)
 
-# VitaSDK defines
-if( NOT DEFINED CMAKE_TOOLCHAIN_FILE )
-  if( DEFINED ENV{VITASDK} )
-  set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
-  else()
-  message(FATAL_ERROR "Please define VITASDK to point to your SDK path!")
-  endif()
-endif()
+set(CMAKE_TOOLCHAIN_FILE "$ENV{DOLCESDK}/share/dolce.toolchain.cmake" CACHE PATH "DolceSDK toolchain file")
+set(DOLCESDK_CMAKE_FILE "$ENV{DOLCESDK}/share/dolce.cmake" CACHE PATH "DolceSDK CMake functions file")
+include("${DOLCESDK_CMAKE_FILE}" REQUIRED)
 
 # Project start
-project(VitaShell)
-include("${VITASDK}/share/vita.cmake" REQUIRED)
+project(VitaShell LANGUAGES C)
+
 set(VITA_APP_NAME "VitaShell")
 set(VITA_TITLEID  "VITASHELL")
 set(VITA_VERSION  "02.02")
 
 # Flags and includes
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O3 -Wno-unused-variable -Wno-unused-but-set-variable -Wno-format-truncation -fno-lto")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c+ + 11 -fno-rtti -fno-exceptions")
-set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
-set(VITA_MAKE_FSELF_FLAGS "${VITA_MAKE_FSELF_FLAGS} -a 0x2808000000000000")
+
+add_compile_options(
+  -O3 -std=gnu11
+  -Wall -Wextra -Wundef
+  -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter
+  -Wno-format-truncation -Wno-sign-compare
+  -fsingle-precision-constant -funsafe-math-optimizations
+)
+
+set(DOLCE_MKSFOEX_FLAGS "${DOLCE_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
+set(DOLCE_MAKE_FSELF_FLAGS "${DOLCE_MAKE_FSELF_FLAGS} -a 0x2808000000000000")
 
 add_subdirectory(modules/kernel)
 add_subdirectory(modules/user)
@@ -147,14 +149,13 @@ add_executable(VitaShell
   libmad/timer.c
 )
 
-add_dependencies(VitaShell vitashell_user_stubs)
-add_dependencies(VitaShell kernel.skprx)
-add_dependencies(VitaShell user.suprx)
-add_dependencies(VitaShell patch.skprx)
-add_dependencies(VitaShell usbdevice.skprx)
+add_dependencies(VitaShell kernel.skprx.target)
+add_dependencies(VitaShell user.suprx.target)
+add_dependencies(VitaShell patch.skprx.target)
+add_dependencies(VitaShell usbdevice.skprx.target)
 
 target_link_libraries(VitaShell
-  ${CMAKE_CURRENT_BINARY_DIR}/modules/user/libVitaShellUser_stub_weak.a
+  VitaShellUserLibrary_stub_weak
   ftpvita
   vita2d
   vorbisfile
@@ -174,43 +175,46 @@ target_link_libraries(VitaShell
   expat
   taihen_stub
   SceAppMgr_stub
+  SceAppMgrUser_stub
   SceAppUtil_stub
   SceAudio_stub
-  SceAudiodec_stub
+  SceAudiodecUser_stub
   SceCamera_stub
   SceCommonDialog_stub
   SceCtrl_stub
   SceDisplay_stub
+  SceDisplayUser_stub
   SceFios2_stub
   SceGxm_stub
-  SceIme_stub
   SceHttp_stub
+  SceIme_stub
   SceLibKernel_stub
-  SceMtpIfDriver_stub
+  SceMtpIf_stub
   SceMusicExport_stub
   SceNet_stub
   SceNetCtl_stub
   SceNpDrm_stub
-  SceRegistryMgr_stub
-  SceShellSvc_stub
-  SceSqlite_stub
-  SceSsl_stub
-  SceSysmodule_stub
   ScePgf_stub
   ScePhotoExport_stub
   ScePower_stub
-  ScePspnetAdhoc_stub
   ScePromoterUtil_stub
+  ScePspnetAdhoc_stub
+  SceRegMgr_stub
+  SceShellSvc_stub
+  SceShellUtil_stub
+  SceSqlite_stub
+  SceSsl_stub
+  SceSysmodule_stub
   SceTouch_stub
   SceUdcd_stub
-  SceUsbstorVStorDriver_stub
+  SceUsbstorVStor_stub
   SceVideoExport_stub
   SceVshBridge_stub
 )
 
 # Create Vita artifacts
-vita_create_self(eboot.bin VitaShell UNSAFE)
-vita_create_vpk(VitaShell.vpk ${VITA_TITLEID} eboot.bin
+dolce_create_self(eboot.bin VitaShell UNSAFE)
+dolce_create_vpk(VitaShell.vpk ${VITA_TITLEID} eboot.bin
   VERSION ${VITA_VERSION}
   NAME ${VITA_APP_NAME}
   FILE pkg/sce_sys/icon0.png sce_sys/icon0.png

@@ -201,7 +201,7 @@ static int zipAddPath(zipFile zf, const char *path, int filename_start, int leve
 
         int ret = 0;
 
-        if (SCE_S_ISDIR(dir.d_stat.st_mode)) {
+        if (SCE_STM_ISDIR(dir.d_stat.st_mode)) {
           ret = zipAddPath(zf, new_path, filename_start, level, param);
         } else {
           ret = zipAddFile(zf, new_path, filename_start, level, param);

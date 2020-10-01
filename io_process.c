@@ -393,7 +393,7 @@ static int mediaPathHandler(const char *path) {
   // Folders are allowed too
   SceIoStat stat;
   memset(&stat, 0, sizeof(SceIoStat));
-  if (sceIoGetstat(path, &stat) >= 0 && SCE_S_ISDIR(stat.st_mode)) {
+  if (sceIoGetstat(path, &stat) >= 0 && SCE_STM_ISDIR(stat.st_mode)) {
     return 0;
   }
 
@@ -506,7 +506,7 @@ int exportPath(char *path, uint32_t *songs, uint32_t *videos, uint32_t *pictures
         char *new_path = malloc(strlen(path) + strlen(dir.d_name) + 2);
         snprintf(new_path, MAX_PATH_LENGTH, "%s%s%s", path, hasEndSlash(path) ? "" : "/", dir.d_name);
 
-        if (SCE_S_ISDIR(dir.d_stat.st_mode)) {
+        if (SCE_STM_ISDIR(dir.d_stat.st_mode)) {
           int ret = exportPath(new_path, songs, videos, pictures, param);
           if (ret <= 0) {
             free(new_path);

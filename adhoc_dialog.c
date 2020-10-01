@@ -192,7 +192,7 @@ int sendPath(const char *src_path, FileProcessParam *param) {
 
         int ret = 0;
 
-        if (SCE_S_ISDIR(dir.d_stat.st_mode)) {
+        if (SCE_STM_ISDIR(dir.d_stat.st_mode)) {
           ret = sendPath(new_src_path, param);
         } else {
           ret = sendFile(new_src_path, param);

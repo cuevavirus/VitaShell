@@ -355,10 +355,10 @@ int install_thread(SceSize args_size, InstallArguments *args) {
     goto EXIT;
   }
 
-  if (SCE_S_ISDIR(stat.st_mode)) {
+  if (SCE_STM_ISDIR(stat.st_mode)) {
     // Check for param.sfo
     snprintf(path, MAX_PATH_LENGTH, "%s/sce_sys/param.sfo", args->file);
-    if (sceIoGetstat(path, &stat) < 0 || SCE_S_ISDIR(stat.st_mode)) {
+    if (sceIoGetstat(path, &stat) < 0 || SCE_STM_ISDIR(stat.st_mode)) {
       closeWaitDialog();
       errorDialog(-2);
       goto EXIT;

@@ -19,7 +19,7 @@
 #include <psp2/appmgr.h>
 #include <psp2/kernel/processmgr.h>
 #include <psp2/io/dirent.h>
-#include <psp2/io/fcntl.h>
+#include <psp2/kernel/iofilemgr.h>
 #include <psp2/sysmodule.h>
 #include <psp2/promoterutil.h>
 

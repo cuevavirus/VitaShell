@@ -18,7 +18,7 @@
 
 #include <psp2/kernel/modulemgr.h>
 #include <psp2/kernel/sysmem.h>
-#include <psp2/io/fcntl.h>
+#include <psp2/kernel/iofilemgr.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -42,7 +42,6 @@ int shellUserGetRifVitaKey(const void *license_buf, void *klicensee) {
   return shellKernelGetRifVitaKey(license_buf, klicensee);
 }
 
-void _start() __attribute__ ((weak, alias("module_start")));
 int module_start(SceSize args, void *argp) {
   return SCE_KERNEL_START_SUCCESS;
 }

@@ -21,7 +21,6 @@
 
 static SceUID hooks[2];
 
-void _start() __attribute__ ((weak, alias("module_start")));
 int module_start(SceSize args, void *argp) {
   // Get tai module info
   tai_module_info_t info;

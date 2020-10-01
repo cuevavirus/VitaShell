@@ -28,17 +28,17 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <psp2/io/fcntl.h>
+#include <psp2/kernel/iofilemgr.h>
 #include <psp2/sqlite.h>
 
 #include "sqlite3.h"
 
 //#define VERBOSE 1
-#if VERBOSE
+#if defined(VERBOSE)
 extern int psvDebugScreenPrintf(const char *format, ...);
 #define LOG psvDebugScreenPrintf
 #else
-#define LOG(...)
+#define LOG(...) ((void)0)
 #endif
 
 #define IS_ERROR(x) ((unsigned)x & 0x80000000)
@@ -71,7 +71,7 @@ static int vita_xWrite(sqlite3_file *file, const void *buf, int count, sqlite_in
 static int vita_xSync(sqlite3_file *file, int flags)
 {
   vfs_file *p = (vfs_file*)file;
-  int r = sceIoSyncByFd(*p->fd);
+  int r = sceIoSyncByFd(*p->fd, flags);
   LOG("xSync %x, %x => %x\n", *p->fd, flags, r);
   if (IS_ERROR(r))
     return SQLITE_IOERR_FSYNC;
